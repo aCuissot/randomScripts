@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 
 import requests
@@ -19,7 +20,9 @@ assuming that lines will always contain the same data -> C fo
 
 
 def clear_console(curr_os):
-    if curr_os=='Windows':
+    if 'pycharm' in os.getcwd().lower() or 'pycharm' in sys.exec_prefix.lower():
+        print('\n' * 80)
+    elif curr_os=='Windows':
         os.system('cls')
     else:
         os.system('clear')
