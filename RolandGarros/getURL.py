@@ -14,7 +14,6 @@ def getUrl(txtArray, jaaj=''):
     tag1 = 'function(){window.google={kEI:'
     tag2 = 'data-async-context='
     i = 0
-    potentialRes = ""
     for element in txtArray:
         i += 1
         if tag1 in element:
@@ -22,17 +21,12 @@ def getUrl(txtArray, jaaj=''):
         if tag2 in element:
             subArray = element.split(tag2)
             for i in range(1, len(subArray)):
-                # print("=======")
                 subElement = element.split(tag2)[i].split('"')[1]
-                # print(subElement)
                 if "emids" in subElement:
                     URLpart3 = subElement.split(':')[-1]
                 if "ctx:%" in subElement:
                     URLpart4 = subElement[subElement.find(";"):]
                     killMeThisUrlIsFkingShitIWillBeCrazyAtTheEndOfTheDay = subElement[:subElement.find(";")]
-
-    # print(URLpart3)
-    # print(URLpart4)
 
     URLpart4 = URLpart4.replace(';', ',')
     URLpart4 = URLpart4.split(',')
@@ -48,26 +42,34 @@ def getUrl(txtArray, jaaj=''):
 
 
 # print(generate_user_agent())
-# 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.3; Win64; x64)'
 
 # print(generate_user_agent(os=('mac', 'linux')))
-# 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:36.0) Gecko/20100101 Firefox/36.0'
 
 # pprint(generate_navigator())
-
-# {'app_code_name': 'Mozilla',
-#  'app_name': 'Netscape',
-#  'appversion': '5.0',
-#  'name': 'firefox',
-#  'os': 'linux',
-#  'oscpu': 'Linux i686 on x86_64',
-#  'platform': 'Linux i686 on x86_64',
-#  'user_agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686 on x86_64; rv:41.0) Gecko/20100101 Firefox/41.0',
-#  'version': '41.0'}
 
 # pprint(generate_navigator_js())
 
 
+def getFinalURL(men=True):
+    """
+
+    :param men: True for men match, False for women. Default True
+    :return:
+    """
+    header = {'User-Agent': str(generate_navigator())}
+    url = "https://www.google.com/search?q=roland+garros"
+
+    r = requests.get(url, headers=header)
+    content = r.content
+    content = content.decode("UTF-8")
+    contentLines = content.splitlines()
+    if men:
+        return getUrl(contentLines)
+    # Women
+    return getUrl(contentLines, 'null')
+
+
+"""
 header = {'User-Agent': str(generate_navigator_js())}
 url = "https://www.google.com/search?q=roland+garros"
 
@@ -97,24 +99,4 @@ if 'data-async-context=' in content:
     print(getUrl(contentLines, 'null'))
     print(expectedUrl)
     print(getUrl(contentLines, 'null') == expectedUrl)
-
-
-# webview.create_window('Hello world', url)
-# webview.start()
-# if 'data-async-context=' in content:
-#     f = open("/tmp/jaaj.pytest2", "w")
-#     f.write(content)
-#     f.close()
-
-# The file contain the html page content to test getUrl but it should be replace by current html content
-f = open("media/a.txt", "r", encoding="utf-8")
-content = f.read()
-contentLines = content.splitlines()
-
-"""
-# print(content)
-# don't know why there is null sometimes, maybe it is for match not terminated, or for women matches idk
-print(getUrl(contentLines, 'null'))
-print(expectedUrl)
-print(getUrl(contentLines, 'null') == expectedUrl)
 """
