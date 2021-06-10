@@ -32,7 +32,7 @@ content = r.content
 content = content.decode("UTF-8")
 contentLines = content.splitlines()
 
-expectedUrl = "https://www.google.fr/async/torspo?ei=V0nCYILYJ-WAjLsP5_q3qA8&yv=3&async=emids:%2Fg%2F11rg46b13_,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:null,ct:FR,hl:en,tz:Europe%2FParis,_fmt:jspb"
+expectedUrl = "https://www.google.com/async/torspo?ei=V0nCYILYJ-WAjLsP5_q3qA8&yv=3&async=emids:%2Fg%2F11rg46b13_,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:null,ct:FR,hl:en,tz:Europe%2FParis,_fmt:jspb"
 
 # webview.create_window('Hello world', url)
 # webview.start()
@@ -47,12 +47,13 @@ content = f.read()
 contentLines = content.splitlines()
 
 
-def getUrl(txtArray):
+def getUrl(txtArray, jaaj=''):
     URLpart1 = "https://www.google.com/async/torspo?ei="
     URLpart2 = ""
     URLpart3 = ""
     URLpart4 = ""
     URLend = ",_fmt:jspb"
+    killMeThisUrlIsFkingShitIWillBeCrazyAtTheEndOfTheDay = ""
     tag1 = 'function(){window.google={kEI:'
     tag2 = 'data-async-context='
     i = 0
@@ -64,18 +65,33 @@ def getUrl(txtArray):
         if tag2 in element:
             subArray = element.split(tag2)
             for i in range(1, len(subArray)):
-                print("=======")
+                # print("=======")
                 subElement = element.split(tag2)[i].split('"')[1]
-                print(subElement)
+                # print(subElement)
                 if "emids" in subElement:
                     URLpart3 = subElement.split(':')[-1]
                 if "ctx:%" in subElement:
                     URLpart4 = subElement[subElement.find(";"):]
-    print(URLpart3)
-    print(URLpart4)
-    return URLpart1 + URLpart2 + '&yv=3&async=emids:' + URLpart3 + ',id:lu' + URLpart4.replace(';', ',') + URLend
+                    killMeThisUrlIsFkingShitIWillBeCrazyAtTheEndOfTheDay = subElement[:subElement.find(";")]
+
+    # print(URLpart3)
+    # print(URLpart4)
+
+    URLpart4 = URLpart4.replace(';', ',')
+    URLpart4 = URLpart4.split(',')
+    finalURLpart4 = []
+    i = 0
+
+    for e in URLpart4:
+        if i == len(URLpart4) - 2:
+            finalURLpart4.append('dme:' + jaaj + ',' + killMeThisUrlIsFkingShitIWillBeCrazyAtTheEndOfTheDay)
+        finalURLpart4.append(e)
+        i += 1
+    return URLpart1 + URLpart2 + '&yv=3&async=emids:' + URLpart3 + ',id:lu' + ",".join(finalURLpart4) + URLend
 
 
 # print(content)
-print(getUrl(contentLines))
+# don't know why there is null sometimes, maybe it is for match not terminated, or for women matches idk
+print(getUrl(contentLines, 'null'))
 print(expectedUrl)
+print(getUrl(contentLines, 'null') == expectedUrl)
