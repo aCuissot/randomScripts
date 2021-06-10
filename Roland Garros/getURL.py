@@ -3,49 +3,6 @@ import requests
 from user_agent import generate_user_agent, generate_navigator, generate_navigator_js
 from pprint import pprint
 
-# print(generate_user_agent())
-# 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.3; Win64; x64)'
-
-# print(generate_user_agent(os=('mac', 'linux')))
-# 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:36.0) Gecko/20100101 Firefox/36.0'
-
-# pprint(generate_navigator())
-
-# {'app_code_name': 'Mozilla',
-#  'app_name': 'Netscape',
-#  'appversion': '5.0',
-#  'name': 'firefox',
-#  'os': 'linux',
-#  'oscpu': 'Linux i686 on x86_64',
-#  'platform': 'Linux i686 on x86_64',
-#  'user_agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686 on x86_64; rv:41.0) Gecko/20100101 Firefox/41.0',
-#  'version': '41.0'}
-
-# pprint(generate_navigator_js())
-
-
-header = {'User-Agent': str(generate_navigator_js())}
-url = "https://www.google.com/search?q=roland+garros"
-
-r = requests.get(url, headers=header)
-content = r.content
-content = content.decode("UTF-8")
-contentLines = content.splitlines()
-
-expectedUrl = "https://www.google.com/async/torspo?ei=V0nCYILYJ-WAjLsP5_q3qA8&yv=3&async=emids:%2Fg%2F11rg46b13_,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:null,ct:FR,hl:en,tz:Europe%2FParis,_fmt:jspb"
-
-# webview.create_window('Hello world', url)
-# webview.start()
-# if 'data-async-context=' in content:
-#     f = open("/tmp/jaaj.pytest2", "w")
-#     f.write(content)
-#     f.close()
-
-# The file contain the html page content to test getUrl but it should be replace by current html content
-f = open("media/a.txt", "r", encoding="utf-8")
-content = f.read()
-contentLines = content.splitlines()
-
 
 def getUrl(txtArray, jaaj=''):
     URLpart1 = "https://www.google.com/async/torspo?ei="
@@ -90,8 +47,74 @@ def getUrl(txtArray, jaaj=''):
     return URLpart1 + URLpart2 + '&yv=3&async=emids:' + URLpart3 + ',id:lu' + ",".join(finalURLpart4) + URLend
 
 
+# print(generate_user_agent())
+# 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.3; Win64; x64)'
+
+# print(generate_user_agent(os=('mac', 'linux')))
+# 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:36.0) Gecko/20100101 Firefox/36.0'
+
+# pprint(generate_navigator())
+
+# {'app_code_name': 'Mozilla',
+#  'app_name': 'Netscape',
+#  'appversion': '5.0',
+#  'name': 'firefox',
+#  'os': 'linux',
+#  'oscpu': 'Linux i686 on x86_64',
+#  'platform': 'Linux i686 on x86_64',
+#  'user_agent': 'Mozilla/5.0 (X11; Ubuntu; Linux i686 on x86_64; rv:41.0) Gecko/20100101 Firefox/41.0',
+#  'version': '41.0'}
+
+# pprint(generate_navigator_js())
+
+
+header = {'User-Agent': str(generate_navigator_js())}
+url = "https://www.google.com/search?q=roland+garros"
+
+r = requests.get(url, headers=header)
+content = r.content
+content = content.decode("UTF-8")
+contentLines = content.splitlines()
+expectedUrl = "https://www.google.com/async/torspo?ei=V0nCYILYJ-WAjLsP5_q3qA8&yv=3&async=emids:%2Fg%2F11rg46b13_,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:null,ct:FR,hl:en,tz:Europe%2FParis,_fmt:jspb"
+
+if 'data-async-context=' in content:
+    print("YES generate_navigator_js() a marché")
+    print(getUrl(contentLines, 'null'))
+    print(expectedUrl)
+    print(getUrl(contentLines, 'null') == expectedUrl)
+
+
+header = {'User-Agent': str(generate_navigator())}
+url = "https://www.google.com/search?q=roland+garros"
+
+r = requests.get(url, headers=header)
+content = r.content
+content = content.decode("UTF-8")
+contentLines = content.splitlines()
+
+if 'data-async-context=' in content:
+    print("YES generate_navigator() a marché")
+    print(getUrl(contentLines, 'null'))
+    print(expectedUrl)
+    print(getUrl(contentLines, 'null') == expectedUrl)
+
+
+# webview.create_window('Hello world', url)
+# webview.start()
+# if 'data-async-context=' in content:
+#     f = open("/tmp/jaaj.pytest2", "w")
+#     f.write(content)
+#     f.close()
+
+# The file contain the html page content to test getUrl but it should be replace by current html content
+f = open("media/a.txt", "r", encoding="utf-8")
+content = f.read()
+contentLines = content.splitlines()
+
+"""
 # print(content)
 # don't know why there is null sometimes, maybe it is for match not terminated, or for women matches idk
 print(getUrl(contentLines, 'null'))
 print(expectedUrl)
 print(getUrl(contentLines, 'null') == expectedUrl)
+"""
