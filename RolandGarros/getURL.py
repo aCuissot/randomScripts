@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 from user_agent import generate_user_agent, generate_navigator, generate_navigator_js
@@ -50,23 +52,28 @@ def getUrl(txtArray, jaaj=''):
 # pprint(generate_navigator_js())
 
 
-def getFinalURL(men=True):
+def getFinalURL(men=True, numberOfAttemptBeforeRaiseException=30):
     """
 
+    :param numberOfAttemptBeforeRaiseException: default 30
     :param men: True for men match, False for women. Default True
     :return:
     """
-    header = {'User-Agent': str(generate_navigator())}
-    url = "https://www.google.com/search?q=roland+garros"
+    for i in range(numberOfAttemptBeforeRaiseException):
+        header = {'User-Agent': str(generate_navigator_js())}
+        url = "https://www.google.com/search?q=roland+garros"
 
-    r = requests.get(url, headers=header)
-    content = r.content
-    content = content.decode("UTF-8")
-    contentLines = content.splitlines()
-    if men:
-        return getUrl(contentLines)
-    # Women
-    return getUrl(contentLines, 'null')
+        r = requests.get(url, headers=header)
+        content = r.content
+        content = content.decode("UTF-8")
+        contentLines = content.splitlines()
+        if 'data-async-context=' in content:
+            if men:
+                return getUrl(contentLines)
+            # Women
+            return getUrl(contentLines, 'null')
+        time.sleep(1)
+    raise Exception("Cannot find the right URL")
 
 
 """

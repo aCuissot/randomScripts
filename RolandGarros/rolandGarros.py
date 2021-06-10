@@ -162,14 +162,10 @@ def displayResult(req_url, curr_os, refreshRate=30, displayStats=False):
 
         print(getMatch(contentLines))
         print(getCourt(contentLines))
-
-        print(getPlayers(contentLines))
         print("Score:")
-        j1Sets, j2Sets = getSets(contentLines)
-        print(j1Sets)
-        print(j2Sets)
+        set1, set2 = getSets(contentLines)
+        displayScoreProperly(getPlayers(contentLines), set1, set2, getJeux(contentLines))
 
-        print(getJeux(contentLines))
         if displayStats:
             print("===========")
             print("Stats:")
@@ -183,8 +179,57 @@ def displayResult(req_url, curr_os, refreshRate=30, displayStats=False):
         time.sleep(refreshRate)
 
 
-def displayScoreProperly(j1Sets, j2Sets, jeux):
-    pass
+def strPlayerNameCut(str1, str2, maxlen=50):
+    if max(len(str1), len(str2)) < maxlen:
+        maxlen = max(len(str1), len(str2))
+    str1 += " " * (maxlen - len(str1))
+    str2 += " " * (maxlen - len(str2))
+    str1 += '\t: '
+    str2 += '\t: '
+    return str1, str2
+
+
+def strPtsCut(arr1, arr2, arr3, maxlen=2):
+    str1 = ""
+    str2 = ""
+    for i in range(len(arr1)):
+        if max(len(arr1[i]), len(arr2[i])) < maxlen:
+            maxlen = max(len(arr1[i]), len(arr2[i]))
+        str1 += " " * (maxlen - len(str1))
+        str2 += " " * (maxlen - len(str2))
+        str1 += arr1[i]
+        str2 += arr2[i]
+        str1 += " | "
+        str2 += " | "
+    if arr3:
+        if max(len(arr3[0]), len(arr3[1])) < maxlen:
+            maxlen = max(len(arr3[0]), len(arr3[1]))
+        str1 += " " * (maxlen - len(str1))
+        str2 += " " * (maxlen - len(str2))
+        str1 += arr3[0]
+        str2 += arr3[1]
+
+    return str1, str2
+
+
+def displayScoreProperly(players, j1Sets, j2Sets, jeux):
+    Line0 = ""
+    Line1 = ""
+    players0, players1 = strPlayerNameCut(players[0], players[1])
+    Line1 += players1
+    Line0 += players0
+    # si aucun jeu en cours
+    if not jeux:
+        pts0, pts1 = strPtsCut(j1Sets, j2Sets, None)
+        Line1 += pts1
+        Line0 += pts0
+    else:
+        pts0, pts1 = strPtsCut(j1Sets, j2Sets, jeux)
+        Line1 += pts1
+        Line0 += pts0
+    print(Line0)
+    print(Line1)
+
 
 """
 url = "https://www.google.com/async/torspo?ei=qtXAYIvUMKmSjLsPkP2puAo&yv=3&async=emids:%2Fg%2F11rfwjq3qm,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:,ct:FR,hl:fr,tz:Europe%2FParis,_fmt:jspb"
@@ -194,7 +239,17 @@ url = "https://www.google.fr/async/torspo?ei=j0XCYMn7OqSOjLsP2dW-0Ac&yv=3&async=
 url = "https://www.google.com/async/torspo?ei=tU_CYL_UFMOMlwTGu7HYBg&yv=3&async=emids:%2Fg%2F11rg46b13_,id:lu,ctx:%5B%5B%5B3%2C%22%2Fm%2F012xcl%22%5D%0A%2C%5B2%5D%0A%2C%5B1%5D%0A%5D%0A%2Cnull%2C%5B%5B%22ev2%22%2C%22clb%22%2C%22tlb%22%2C%22tv%22%2C%22gs2%22%2C%22msv%22%5D%0A%5D%0A%2Cnull%2C1%2Cnull%2C0%2C%5Bnull%2C%5B%22%2Fg%2F11ljs58syp%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F07bs0%22%5D%0A%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%22%2Fm%2F012xcl%22%5D%0A%5D%0A%2C2%2C0%5D%0A,dme:null,ct:FR,hl:fr,tz:Europe%2FParis,_fmt:jspb"
 """
 
-
 currOs = platform.system()
 url = getFinalURL(False)
+
+# Because getFinalURL is capricieux, si ça marche, on save l'url pour plus tard
+if url:
+    f = open("tmp_url_save", "w")
+    f.write(url)
+    f.close()
+else:
+    f = open("tmp_url_save", "r")
+    url = f.read()
+    f.close()
+
 displayResult(url, currOs, refreshRate=15)
