@@ -121,6 +121,15 @@ def getStats(txtArray):
     return res
 
 
+def getService(fullText):
+    tag = '["tsp-sv"]'
+    tagPlayer = '["tsp-nd","tsp-db","tsp-el"]'
+    splitted = fullText.split(tagPlayer)
+    if tag in splitted[1]:
+        return ['.', ' ']
+    return [' ', '.']
+
+
 def getStatus(txtArray):
     statusTag1 = '["tsp-lv","tsp-fm"]'
     statusTag2 = '["tsp-sis","tsp-frs","tsp-dnil"]'
@@ -166,6 +175,7 @@ def displayResult(req_url, curr_os, refreshRate=30, simple=True, color=False, di
         print(getCourt(contentLines))
         if simple:
             print(getPlayers(contentLines))
+            print(getService(content))
             print("Score:")
             j1Sets, j2Sets = getSets(contentLines)
             print(j1Sets)
@@ -175,7 +185,7 @@ def displayResult(req_url, curr_os, refreshRate=30, simple=True, color=False, di
         else:
             print("Score:")
             set1, set2 = getSets(contentLines)
-            displayScoreProperly(getPlayers(contentLines), set1, set2, getJeux(contentLines), color)
+            displayScoreProperly(getPlayers(contentLines), set1, set2, getJeux(contentLines), getService(content), color)
 
         if displayStats:
             print("===========")
@@ -209,10 +219,10 @@ def strPtsCut(arr1, arr2, arr3, color, maxlen=2):
         str1 += " " * (maxlen - len(str1))
         str2 += " " * (maxlen - len(str2))
         if color:
-            if int(arr1[i])>int(arr2[i]):
-                str1+="\033[;32m" #green
-                str2+="\033[;31m" #red
-            elif int(arr1[i])<int(arr2[i]):
+            if int(arr1[i]) > int(arr2[i]):
+                str1 += "\033[;32m"  # green
+                str2 += "\033[;31m"  # red
+            elif int(arr1[i]) < int(arr2[i]):
                 str2 += "\033[;32m"  # green
                 str1 += "\033[;31m"  # red
 
@@ -234,9 +244,16 @@ def strPtsCut(arr1, arr2, arr3, color, maxlen=2):
     return str1, str2
 
 
-def displayScoreProperly(players, j1Sets, j2Sets, jeux, color):
+def displayScoreProperly(players, j1Sets, j2Sets, jeux, service, color):
+
     Line0 = ""
     Line1 = ""
+    if color:
+        Line1 += "\033[;34m" + service[1] + '\033[0m'
+        Line0 += "\033[;34m" + service[0] + '\033[0m'
+    else:
+        Line1 += service[1]
+        Line0 += service[0]
     players0, players1 = strPlayerNameCut(players[0], players[1])
     Line1 += players1
     Line0 += players0
