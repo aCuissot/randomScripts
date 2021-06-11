@@ -137,9 +137,11 @@ def getStatus(txtArray):
             return clearLine(txtArray[i + 2])
 
 
-def displayResult(req_url, curr_os, refreshRate=30, displayStats=False):
+def displayResult(req_url, curr_os, refreshRate=30, simple=True, color=False, displayStats=False):
     """
 
+    :param simple: use the basic display of the score or not.
+    :param color: Add color to the stats to show which player is winning, if simple is True, this arg is not pris en compte
     :param req_url: The url of the updated match info file (see RolandGarros.md to find it)
     :param curr_os: current OS to be able to clear and so refresh console
     :param refreshRate: In seconds. Stats should not be updated with a very high frequency, so it is useless refresh it to frequently (on the google page, it is around 15sec)
@@ -162,9 +164,18 @@ def displayResult(req_url, curr_os, refreshRate=30, displayStats=False):
 
         print(getMatch(contentLines))
         print(getCourt(contentLines))
-        print("Score:")
-        set1, set2 = getSets(contentLines)
-        displayScoreProperly(getPlayers(contentLines), set1, set2, getJeux(contentLines))
+        if simple:
+            print(getPlayers(contentLines))
+            print("Score:")
+            j1Sets, j2Sets = getSets(contentLines)
+            print(j1Sets)
+            print(j2Sets)
+
+            print(getJeux(contentLines))
+        else:
+            print("Score:")
+            set1, set2 = getSets(contentLines)
+            displayScoreProperly(getPlayers(contentLines), set1, set2, getJeux(contentLines), color)
 
         if displayStats:
             print("===========")
@@ -189,7 +200,7 @@ def strPlayerNameCut(str1, str2, maxlen=50):
     return str1, str2
 
 
-def strPtsCut(arr1, arr2, arr3, maxlen=2):
+def strPtsCut(arr1, arr2, arr3, color, maxlen=2):
     str1 = ""
     str2 = ""
     for i in range(len(arr1)):
@@ -197,8 +208,19 @@ def strPtsCut(arr1, arr2, arr3, maxlen=2):
             maxlen = max(len(arr1[i]), len(arr2[i]))
         str1 += " " * (maxlen - len(str1))
         str2 += " " * (maxlen - len(str2))
+        if color:
+            if int(arr1[i])>int(arr2[i]):
+                str1+="\033[;32m" #green
+                str2+="\033[;31m" #red
+            elif int(arr1[i])<int(arr2[i]):
+                str2 += "\033[;32m"  # green
+                str1 += "\033[;31m"  # red
+
         str1 += arr1[i]
         str2 += arr2[i]
+        if color:
+            str2 += "\033[0m"
+            str1 += "\033[0m"
         str1 += " | "
         str2 += " | "
     if arr3:
@@ -212,7 +234,7 @@ def strPtsCut(arr1, arr2, arr3, maxlen=2):
     return str1, str2
 
 
-def displayScoreProperly(players, j1Sets, j2Sets, jeux):
+def displayScoreProperly(players, j1Sets, j2Sets, jeux, color):
     Line0 = ""
     Line1 = ""
     players0, players1 = strPlayerNameCut(players[0], players[1])
@@ -220,11 +242,11 @@ def displayScoreProperly(players, j1Sets, j2Sets, jeux):
     Line0 += players0
     # si aucun jeu en cours
     if not jeux:
-        pts0, pts1 = strPtsCut(j1Sets, j2Sets, None)
+        pts0, pts1 = strPtsCut(j1Sets, j2Sets, None, color)
         Line1 += pts1
         Line0 += pts0
     else:
-        pts0, pts1 = strPtsCut(j1Sets, j2Sets, jeux)
+        pts0, pts1 = strPtsCut(j1Sets, j2Sets, jeux, color)
         Line1 += pts1
         Line0 += pts0
     print(Line0)
@@ -252,4 +274,4 @@ else:
     url = f.read()
     f.close()
 
-displayResult(url, currOs, refreshRate=15)
+displayResult(url, currOs, refreshRate=15, simple=False, color=True)
