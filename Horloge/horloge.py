@@ -7,30 +7,43 @@ import sys
 
 chiffres_path = "chiffres.png"
 separateur_path = "separateur.png"
+new_chiffres_path = "chiffres_bw.png"
 ecartement = 5
 
-# print(columns, rows)
-img_chiffre = cv.imread(chiffres_path, cv.IMREAD_GRAYSCALE)
 
-
-def getChiffreImage(chiffre):
-    img = img_chiffre.copy()
-    h, w = len(img), len(img[0])
-    # print(w, h)
-    c1 = chiffre // 5
-    c2 = chiffre % 5
-    # print(c1, c2)
-    img = img[int(c1 * h / 2):int((c1 + 1) * h / 2), int(c2 * w / 5):int((c2 + 1) * w / 5)]
+def createBlackAndWhiteChiffre():
+    img = cv.imread(chiffres_path, cv.IMREAD_GRAYSCALE)
     for i in range(len(img)):
         for j in range(len(img[0])):
             if img[i][j] > 200:
                 img[i][j] = 255
             else:
                 img[i][j] = 0
-    # print(img)
-    # print(len(img), len(img[0]))
-    # cv.imshow("", img)
-    # cv.waitKey(0)
+    cv.imwrite(new_chiffres_path, img)
+
+
+# creating this image once to work on it instead of preprocess the first image allow to divide by two the compute time
+if not os.path.exists(new_chiffres_path):
+    createBlackAndWhiteChiffre()
+img_chiffre = cv.imread(new_chiffres_path, cv.IMREAD_GRAYSCALE)
+
+
+def getChiffreImage(chiffre):
+    img = img_chiffre.copy()
+    h, w = len(img), len(img[0])
+
+    c1 = chiffre // 5
+    c2 = chiffre % 5
+
+    img = img[int(c1 * h / 2):int((c1 + 1) * h / 2), int(c2 * w / 5):int((c2 + 1) * w / 5)]
+    """
+    for i in range(len(img)):
+        for j in range(len(img[0])):
+            if img[i][j] > 200:
+                img[i][j] = 255
+            else:
+                img[i][j] = 0
+                """
     return img
 
 
@@ -90,7 +103,7 @@ def display(img):
     line = ""
     for i in img:
         for j in i:
-            if j < 125:
+            if j == 0:
                 line += "A"
             else:
                 line += " "
@@ -123,6 +136,15 @@ for char in curr_date:
 display(hconcat_resize(imgList))
 """
 
+
+def dateCompare(old, new):
+    s = len(old)
+    for i in range(s - 1, -1, -1):
+        if old[i] != ':' and old[i] == new[i]:
+            return i
+    return -1
+
+
 jaaj = True
 
 
@@ -136,18 +158,30 @@ def sigterm_handler(_signo, _stack_frame):
 signal.signal(signal.SIGTERM, sigterm_handler)
 signal.signal(signal.SIGINT, sigterm_handler)
 try:
-
+    imgList = []
+    oldDate = ' ' * 8
     while jaaj:
         curr_date = getDateStr()
-        imgList = []
-        for char in curr_date:
-            if char == ':':
-                imgList.append(getSeparateur())
+        a = dateCompare(oldDate, curr_date)
+        if a == -1:
+            imgList = []
+            a = 0
+        else:
+            imgList = imgList[:a]
+
+        for i in range(a, len(curr_date)):
+            char = curr_date[i]
+            if char in curr_date[:i]:
+                imgList.append(imgList[curr_date[:i].find(char)])
             else:
-                imgList.append(cropImage(getChiffreImage(int(char))))
+                if char == ':':
+                    imgList.append(getSeparateur())
+                else:
+                    imgList.append(cropImage(getChiffreImage(int(char))))
+        oldDate = curr_date
         # cv.imshow("", hconcat_resize(imgList))
         # cv.waitKey(0)g
         display(hconcat_resize(imgList))
 
 finally:
-    print("End")
+    print()
